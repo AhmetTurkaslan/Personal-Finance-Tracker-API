@@ -1,0 +1,453 @@
+basePath: /
+definitions:
+  handlers.CategoryInput:
+    properties:
+      category_name:
+        type: string
+      parent_id:
+        type: integer
+      type:
+        type: string
+    required:
+    - category_name
+    - type
+    type: object
+  handlers.LoginInput:
+    properties:
+      identifier:
+        type: string
+      password:
+        type: string
+    required:
+    - identifier
+    - password
+    type: object
+  handlers.RegisterInput:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+      username:
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  handlers.TransactionInput:
+    properties:
+      comment:
+        type: string
+      ttype:
+        type: string
+      value:
+        type: number
+    required:
+    - ttype
+    - value
+    type: object
+  models.BudgetInput:
+    properties:
+      category_id:
+        type: integer
+      limit:
+        type: number
+      month:
+        type: integer
+      year:
+        type: integer
+    required:
+    - category_id
+    - limit
+    - month
+    - year
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: Kişisel finans takip uygulaması API'si
+  title: Finance Tracker API
+  version: "1.0"
+paths:
+  /categories:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kategorileri listele
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: Yeni kategori oluşturur
+      parameters:
+      - description: Kategori bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kategori oluştur
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      parameters:
+      - description: Kategori ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kategori sil
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: Kategori ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Kategori bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.CategoryInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kategori güncelle
+      tags:
+      - categories
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Kullanıcı girişi yapar ve token döndürür
+      parameters:
+      - description: Giriş bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.LoginInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Kullanıcı girişi
+      tags:
+      - auth
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Yeni kullanıcı oluşturur
+      parameters:
+      - description: Kullanıcı bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.RegisterInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Kullanıcı kaydı
+      tags:
+      - auth
+  /report/budget:
+    get:
+      parameters:
+      - description: Ay
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: Yıl
+        in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Bütçe durumu
+      tags:
+      - report
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Bütçe bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/models.BudgetInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Bütçe limiti belirle
+      tags:
+      - report
+  /report/categories:
+    get:
+      parameters:
+      - description: Ay
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: Yıl
+        in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Kategori bazında harcamalar
+      tags:
+      - report
+  /report/comparison:
+    get:
+      parameters:
+      - description: Ay
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: Yıl
+        in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Aylık karşılaştırma
+      tags:
+      - report
+  /report/summary:
+    get:
+      parameters:
+      - description: Ay
+        in: query
+        name: month
+        required: true
+        type: integer
+      - description: Yıl
+        in: query
+        name: year
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: Aylık özet
+      tags:
+      - report
+  /transactions:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+      security:
+      - BearerAuth: []
+      summary: İşlemleri listele
+      tags:
+      - transactions
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: İşlem bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TransactionInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: İşlem oluştur
+      tags:
+      - transactions
+  /transactions/{id}:
+    delete:
+      parameters:
+      - description: İşlem ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: İşlem sil
+      tags:
+      - transactions
+    put:
+      consumes:
+      - application/json
+      parameters:
+      - description: İşlem ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: İşlem bilgileri
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handlers.TransactionInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      security:
+      - BearerAuth: []
+      summary: İşlem güncelle
+      tags:
+      - transactions
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
